@@ -1,0 +1,50 @@
+image: node:14
+
+stages:
+  - install
+  - test
+  - build
+  - deploy
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+install_dependencies:
+  stage: install
+  script:
+    - npm install
+  artifacts:
+    paths:
+      - node_modules/
+
+test:
+  stage: test
+  script:
+    - npm install
+    - npm test 
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+
+build:
+  stage: build
+  script:
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 week
+
+pages:
+  stage: deploy
+  script:
+    - mv build public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
